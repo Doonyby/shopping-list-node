@@ -55,41 +55,34 @@ describe('Shopping List', function() {
     });
     it('should edit an item on put given an id', function(done) {
         chai.request(app)
-            .get('/items')
-            .end(function(err, res) {
-                chai.request(app)
-                    .put('/items/' + res.body[0].id)
-                    .send({'name': 'White beans'})
-                    .end(function(error, response) {
-                        response.should.have.status(201);
-                        response.should.be.json;
-                        response.res.body[0].id.should.be.a('number');
-                        response.body[0].name.should.be.a('string');
-                        response.body[0].name.should.equal('White beans');
-                        done();
-                    })
-            })
+            .put('/items/0')
+            .send({'name': 'White beans'})
+            .end(function(error, response) {
+                response.should.have.status(201);
+                response.should.be.json;
+                response.body.should.have.property('id');
+                response.body.name.should.be.a('string');
+                response.body.name.should.equal('White beans');
+                done();
+            });
     });
     it('should delete an item on delete', function(done) {
         chai.request(app)
-            .get('/items')
-            .end(function(err, res) {
-                chai.request(app)
-                    .delete('/items/' + res.body[0]._id)
-                    .end(function(error, response) {
-                        response.should.have.status(200);
-                        response.should.be.json;
-                        response.body.should.have.property('REMOVED');
-                        response.body.REMOVED.name.should.equal('Broad beans');
-                        done();
-                    })
-            })
+            .delete('/items/0')
+            .end(function(error, response) {
+                response.should.have.status(201);
+                response.should.be.json;
+                response.body[0].name.should.equal('White beans');
+                done();
+            });
     });
-    it('should not add an already existing item on post');
-    it('should not post without body data on post');
-    it('should not edit item without id in endpoint on put');
-    it('should not edit an item without body data on put');
-    it('should delete an item that does not exist on delete');
-    it('should not delete an item without id in endpoint on delete');
-    it('should only post with valid json on post');
+    it('should not add an already existing item on post', function(done) {
+        chai.request(app)
+            .post('/items')
+            .send({'name': 'Peppers'})
+            .end(function(err, res) {
+                res.should.have.status(400);
+                done();
+            });
+    });
 });

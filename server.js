@@ -15,18 +15,17 @@ Storage.prototype.add = function(name) {
 Storage.prototype.delete = function(item) {
     for (var i=0; i<this.items.length; i++) {
         if (this.items[i].id == item) {
-           this.items.splice(i, 1);
-           return item;
+          return this.items.splice(i, 1);
         }
     }
     return false;
-}
+};
 
 Storage.prototype.edit = function(number, name) {
     for (var i=0; i<this.items.length; i++) {
         if (this.items[i].id == number) {
             this.items[i].name = name;
-           return name;
+           return this.items[i];
         }
     }
     return false;
@@ -51,9 +50,16 @@ app.get('/items', function(req, res) {
 app.post('/items', jsonParser, function(req, res) {
     if (!req.body) {
         return res.sendStatus(400);
+    } else {
+        for (var i=0; i<storage.items.length; i++) {
+            if (storage.items[i].name.toLowerCase() == req.body.name.toLowerCase()) {
+                return res.sendStatus(400);
+            }
+        }
+        var item = storage.add(req.body.name);
+        res.status(201).json(item);
+
     }
-    var item = storage.add(req.body.name);
-    res.status(201).json(item);
 });
 
 app.delete('/items/:id', jsonParser, function(req, res) {
