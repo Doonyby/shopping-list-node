@@ -56,7 +56,7 @@ describe('Shopping List', function() {
     it('should edit an item on put given an id', function(done) {
         chai.request(app)
             .put('/items/0')
-            .send({'name': 'White beans'})
+            .send({'name': 'White beans', 'id': 0})
             .end(function(error, response) {
                 response.should.have.status(201);
                 response.should.be.json;
@@ -82,6 +82,68 @@ describe('Shopping List', function() {
             .send({'name': 'Peppers'})
             .end(function(err, res) {
                 res.should.have.status(400);
+                done();
+            });
+    });
+    it('should not post to an id that already exists', function(done) {
+        chai.request(app)
+            .post('/items')
+            .send({'name': 'Mangos', 'id': 1})
+            .end(function(err, res) {
+                res.should.have.status(400);
+                done();
+            });
+    });
+    it('should not post without body data', function(done) {
+        chai.request(app)
+            .post('/items')
+            .send({})
+            .end(function(err, res) {
+                res.should.have.status(400);
+                res.body.should.not.have.property('name');
+                done();
+            });
+    });
+    it('should not put without an id in the end point', function(done) {
+        chai.request(app)
+            .put('/items')
+            .send({'name': 'blue berries'})
+            .end(function(err,res) {
+                res.should.have.status(404);
+                done();
+            });
+    });
+    it('should not put with different id in the endpoint than the body', function(done) {
+        chai.request(app)
+            .put('/items/0')
+            .send({'name': 'kidney beans', 'id': 1})
+            .end(function(err,res) {
+                res.should.have.status(400);
+                done();
+            });
+    });
+    it('should not put to an id that does not exist', function(done) {
+        chai.request(app)
+            .put('/items/10')
+            .send({'name': 'watermelon', 'id': 10})
+            .end(function(err,res) {
+                res.should.have.status(400);
+                done();
+            });
+    });
+    it('should not delete an id that does not exist', function(done) {
+        chai.request(app)
+            .delete('/items/8')
+            .end(function(err,res) {
+                res.should.have.status(400);
+                done();
+            });
+    });
+    it('should not delete without an id in the endpoint', function(done) {
+        chai.request(app)
+            .delete('/items/')
+            .end(function(err,res) {
+                res.should.have.status(404);
                 done();
             });
     });

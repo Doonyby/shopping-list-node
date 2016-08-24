@@ -48,13 +48,13 @@ app.get('/items', function(req, res) {
 });
 
 app.post('/items', jsonParser, function(req, res) {
-    if (!req.body) {
+    if (!req.body || JSON.stringify(req.body) == "{}") {
         return res.sendStatus(400);
     } else {
         for (var i=0; i<storage.items.length; i++) {
-            if (storage.items[i].name.toLowerCase() == req.body.name.toLowerCase()) {
+            if (storage.items[i].name.toLowerCase() == req.body.name.toLowerCase() || storage.items[i].id == req.body.id) {
                 return res.sendStatus(400);
-            }
+            } 
         }
         var item = storage.add(req.body.name);
         res.status(201).json(item);
@@ -71,6 +71,9 @@ app.delete('/items/:id', jsonParser, function(req, res) {
 });
 
 app.put('/items/:id', jsonParser, function(req, res) {
+    if (req.params.id == undefined) {
+        return res.sendStatus(400);
+    }
     var item = storage.edit(req.params.id, req.body.name);
     if (item == false) {
         return res.sendStatus(400);
